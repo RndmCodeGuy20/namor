@@ -1,0 +1,33 @@
+
+port: 5000
+
+timeout: 10
+webhook:
+  url: https://hooks.slack.com/services/your/webhook/url
+  secret: your_webhook_secret
+
+runtime: docker-compose
+host: npipe:////./pipe/docker_engine
+#host: unix:///var/run/docker.sock
+
+services:
+  conduit:
+    requires_auth: true
+    registry: ghcr.io/rndmcodeguy20
+    image: conduit
+    user: "1000:1000"
+    name: conduit-container
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgres://conduit:conduit@db:5432/conduit
+      - JWT_SECRET=your_jwt_secret
+    volume:
+      - ./conduit_data:/app/data
+      - ./conduit_logs:/app/logs
+
+#volumes:
+#    conduit_data:
+#    conduit_logs:
