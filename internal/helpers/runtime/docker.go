@@ -44,6 +44,7 @@ type DockerRuntime struct {
 	initialized bool
 }
 
+// GetDockerRuntime returns a singleton instance of DockerRuntime.
 func GetDockerRuntime(host, minVersion string) (*DockerRuntime, error) {
 	once.Do(func() {
 		logger := utils.NewServiceLogger("docker_runtime")
@@ -84,6 +85,7 @@ func GetDockerRuntime(host, minVersion string) (*DockerRuntime, error) {
 	return dockerRuntimeInstance, nil
 }
 
+// IsDaemonActive checks if the Docker daemon is reachable.
 func (dr *DockerRuntime) IsDaemonActive() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -98,6 +100,7 @@ func (dr *DockerRuntime) IsDaemonActive() bool {
 	return true
 }
 
+// GetVersion retrieves the Docker server version.
 func (dr *DockerRuntime) GetVersion() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -110,6 +113,7 @@ func (dr *DockerRuntime) GetVersion() (string, error) {
 	return version.Version, nil
 }
 
+// StartHealthChecks begins periodic health checks of the Docker runtime.
 func (dr *DockerRuntime) StartHealthChecks() {
 	dr.mu.Lock()
 	if dr.healthCheckCtx != nil {
@@ -138,6 +142,7 @@ func (dr *DockerRuntime) StartHealthChecks() {
 	dr.performHealthCheck()
 }
 
+// StopHealthChecks stops the periodic health checks.
 func (dr *DockerRuntime) StopHealthChecks() {
 	dr.mu.Lock()
 	if dr.healthCheckCancel != nil {
@@ -148,6 +153,7 @@ func (dr *DockerRuntime) StopHealthChecks() {
 	dr.mu.Unlock()
 }
 
+// PullImage pulls a Docker image with optional authentication.
 func (dr *DockerRuntime) PullImage(image, username, token, serverAddress string) error {
 	dr.logger.Debug("Pulling image: " + image)
 
@@ -206,6 +212,7 @@ func (dr *DockerRuntime) PullImage(image, username, token, serverAddress string)
 	return nil
 }
 
+// CreateContainer creates a Docker container with specified configurations.
 func (dr *DockerRuntime) CreateContainer(image, containerName string, ports, env, volumes []string) error {
 	dr.logger.Debug("Creating container: " + containerName)
 
@@ -232,6 +239,7 @@ func (dr *DockerRuntime) CreateContainer(image, containerName string, ports, env
 	return nil
 }
 
+// performHealthCheck checks the health of the Docker runtime and updates the status.
 func (dr *DockerRuntime) performHealthCheck() {
 	err := dr.circuitBreaker.Execute(func() error {
 		if !dr.IsDaemonActive() {
@@ -262,6 +270,7 @@ func (dr *DockerRuntime) performHealthCheck() {
 	}
 }
 
+// GetHealthStatus returns the current health status of the Docker runtime.
 func (dr *DockerRuntime) GetHealthStatus() container_types.ContainerRuntimeHealthStatus {
 	dr.mu.RLock()
 	defer dr.mu.RUnlock()
