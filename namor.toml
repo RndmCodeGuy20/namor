@@ -1,0 +1,18 @@
+title="Namor"
+description="Lightweight webhook based container orchestration platform."
+
+version="0.0.1"
+
+[author]
+name="Shantanu Mane"
+email="hi@rndmcode.in"
+github="https://github.com/rndmcodeguy20"
+
+[project]
+license="MIT"
+repository="https://github.com/rndmcodeguy20/namor"
+
+[scripts]
+build="make"
+run="make run"
+test="make test"
